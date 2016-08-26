@@ -72,7 +72,7 @@ public class KafkaSinkUtil {
   private static Properties generateDefaultKafkaProps() {
     Properties props = new Properties();
     props.put(KafkaSinkConstants.MESSAGE_SERIALIZER_KEY,
-            KafkaSinkConstants.DEFAULT_MESSAGE_SERIALIZER);
+            KafkaSinkConstants.DEFAULT_VALUE_SERIALIZER);
     props.put(KafkaSinkConstants.KEY_SERIALIZER_KEY,
             KafkaSinkConstants.DEFAULT_KEY_SERIALIZER);
     props.put(KafkaSinkConstants.REQUIRED_ACKS_KEY,

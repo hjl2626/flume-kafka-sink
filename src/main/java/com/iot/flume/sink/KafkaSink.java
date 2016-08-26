@@ -24,18 +24,15 @@ public class KafkaSink extends AbstractSink implements Configurable {
     private Properties producerProps;
     private KafkaProducer<String, String> producer;
     private MessagePreprocessor messagePreProcessor;
-    private String topic;
     private Context context;
-
+    private String topic;
 
     public Status process() throws EventDeliveryException {
         Status result = Status.READY;
         Channel channel = getChannel();
         Transaction transaction = channel.getTransaction();
         Event event = null;
-        String eventTopic = topic;
-        String eventKey = null;
-
+        String eventTopic = null;
         try {
             transaction.begin();
             event = channel.take();
@@ -43,19 +40,18 @@ public class KafkaSink extends AbstractSink implements Configurable {
             if (event != null) {
                 // get the message body.
                 String eventBody = new String(event.getBody());
+                Integer partition = Integer.valueOf(event.getHeaders().get("partition"));
+                eventTopic = context.getString("topic");
                 // if the metadata extractor is set, extract the topic and the key.
                 if (messagePreProcessor != null) {
                     eventBody = messagePreProcessor.transformMessage(event, context);
-                    eventTopic = messagePreProcessor.extractTopic(event, context);
-                    eventKey = messagePreProcessor.extractKey(event, context);
                 }
                 // log the event for debugging
                 if (logger.isDebugEnabled()) {
                     logger.debug("{Event} " + eventBody);
                 }
                 // create a message
-                ProducerRecord<String, String> data = new ProducerRecord<String, String>(eventTopic, eventKey,
-                        eventBody);
+                ProducerRecord<String, String> data = new ProducerRecord<String, String>(eventTopic, partition,eventBody,eventBody);
                 // publish
                 producer.send(data);
             } else {
@@ -94,25 +90,6 @@ public class KafkaSink extends AbstractSink implements Configurable {
 
     public void configure(Context context) {
         this.context = context;
-        // read the properties for Kafka Producer
-        // any property that has the prefix "kafka" in the key will be considered as a property that is passed when
-        // instantiating the producer.
-        // For example, kafka.metadata.broker.list = localhost:9092 is a property that is processed here, but not
-        // sinks.k1.type = com.thilinamb.flume.sink.KafkaSink.
-        Map<String, String> params = context.getParameters();
-        producerProps = new Properties();
-        for (String key : params.keySet()) {
-            String value = params.get(key).trim();
-            key = key.trim();
-            if (key.startsWith(KafkaSinkConstants.PROPERTY_PREFIX)) {
-                // remove the prefix
-                key = key.substring(KafkaSinkConstants.PROPERTY_PREFIX.length() + 1, key.length());
-                producerProps.put(key.trim(), value);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Reading a Kafka Producer Property: key: " + key + ", value: " + value);
-                }
-            }
-        }
 
         // get the message Preprocessor if set
         String preprocessorClassName = context.getString(KafkaSinkConstants.PREPROCESSOR);
@@ -124,7 +101,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
                 if (preprocessorObj instanceof MessagePreprocessor) {
                     messagePreProcessor = (MessagePreprocessor) preprocessorObj;
                 } else {
-                    String errorMsg = "Provided class for MessagePreprocessor2 does not implement " +
+                    String errorMsg = "Provided class for MessagePreprocessor does not implement " +
                             "'com.thilinamb.flume.sink.MessagePreprocessor2'";
                     logger.error(errorMsg);
                     throw new IllegalArgumentException(errorMsg);
