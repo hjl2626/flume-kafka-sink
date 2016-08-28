@@ -3,6 +3,8 @@ package com.iot.flume.processor;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Created by hjl on 2016/8/26.
  */
@@ -13,7 +15,7 @@ public interface MessagePreprocessor {
      * @param context The Flume runtime context.
      * @return Key extracted based on the implemented logic
      */
-    public String extractKey(Event event, Context context);
+    public String extractKey(Event event, Context context) throws Exception;
 
     /**
      * Extract a topic for the message
@@ -21,7 +23,7 @@ public interface MessagePreprocessor {
      * @param context The Flume runtime context.
      * @return topic extracted based on the implemented logic
      */
-    public String extractTopic(Event event, Context context);
+    public String extractTopic(Event event, Context context) throws Exception;
 
     /**
      * Prepare message for publishing. This allows users to modify the message body,
@@ -30,5 +32,5 @@ public interface MessagePreprocessor {
      * @param context Flume context
      * @return message that will be published into Kafka
      */
-    public String transformMessage(Event event, Context context);
+    public String transformMessage(Event event, Context context) throws Exception;
 }
