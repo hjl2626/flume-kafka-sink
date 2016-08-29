@@ -83,9 +83,8 @@ public class OldProducerKafkaSink extends AbstractSink implements Configurable {
 
                 // create a message and add to buffer
                 KeyedMessage<String, String> data = new KeyedMessage<String,String>
-                        (eventTopic, eventKey, eventBody);
+                        (eventTopic, eventKey , eventKey, eventBody);
                 messageList.add(data);
-
             }
 
             // publish batch and commit.
@@ -173,7 +172,7 @@ public class OldProducerKafkaSink extends AbstractSink implements Configurable {
                     " this may be over-ridden by event headers");
         }
 
-        kafkaProps = NewProducerKafkaSinkUtil.getKafkaProperties(context);
+        kafkaProps = OldProducerKafkaSinkUtil.getKafkaProperties(context);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Kafka producer properties: " + kafkaProps);
@@ -183,7 +182,7 @@ public class OldProducerKafkaSink extends AbstractSink implements Configurable {
             counter = new KafkaSinkCounter(getName());
         }
 
-        String preprocessorClassName = context.getString(NewProducerKafkaSinkConstants.PREPROCESSOR);
+        String preprocessorClassName = context.getString(OldProducerKafkaSinkConstants.PREPROCESSOR);
         // if it's set create an instance using Java Reflection.
         if (preprocessorClassName != null) {
             try {

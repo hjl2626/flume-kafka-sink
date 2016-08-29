@@ -17,7 +17,7 @@ public class OldProducerKafkaSinkConstants {
     public static final String REQUIRED_ACKS_KEY = "request.required.acks";
     public static final String BROKER_LIST_FLUME_KEY = "brokerList";
     public static final String REQUIRED_ACKS_FLUME_KEY = "requiredAcks";
-
+    public static final String PREPROCESSOR = "preprocessor";
 
 
     public static final int DEFAULT_BATCH_SIZE = 100;

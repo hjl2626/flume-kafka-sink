@@ -12,8 +12,8 @@ public class NewProducerKafkaSinkConstants {
     public static final String TOPIC = "topic";
 
     public static final String BATCH_SIZE_KEY = "batch.size";
-    public static final String VALUE_SERIALIZER_KEY = "value.serializer.class";
-    public static final String KEY_SERIALIZER_KEY = "key.serializer.class";
+    public static final String VALUE_SERIALIZER_KEY = "value.serializer";
+    public static final String KEY_SERIALIZER_KEY = "key.serializer";
     public static final String BROKER_LIST_KEY = "bootstrap.servers";
     public static final String REQUIRED_ACKS_KEY = "acks";
 
