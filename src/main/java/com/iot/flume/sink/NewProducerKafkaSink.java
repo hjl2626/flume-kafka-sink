@@ -39,7 +39,6 @@ public class NewProducerKafkaSink extends AbstractSink implements Configurable {
         try {
             transaction.begin();
             event = channel.take();
-
             if (event != null) {
                 // get the message body.
                 Map<String, String> headers = event.getHeaders();
@@ -74,6 +73,7 @@ public class NewProducerKafkaSink extends AbstractSink implements Configurable {
             } else {
                 // No event found, request back-off semantics from the sink runner
                 result = Status.BACKOFF;
+                break;
             }
             // publishing is successful. Commit.
             transaction.commit();

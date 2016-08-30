@@ -57,6 +57,7 @@ public class OldProducerKafkaSink extends AbstractSink implements Configurable {
 
                 if (event == null) {
                     // no events available in channel
+                    result = Status.BACKOFF;
                     break;
                 }
 
@@ -80,22 +81,31 @@ public class OldProducerKafkaSink extends AbstractSink implements Configurable {
                             + eventBody);
                     logger.debug("event #{}", processedEvents);
                 }
-
                 // create a message and add to buffer
                 KeyedMessage<String, String> data = new KeyedMessage<String,String>
                         (eventTopic, eventKey , eventKey, eventBody);
                 messageList.add(data);
             }
 
-            // publish batch and commit.
-            if (processedEvents > 0) {
-                long startTime = System.nanoTime();
-                producer.send(messageList);
-                long endTime = System.nanoTime();
-                counter.addToKafkaEventSendTimer((endTime - startTime) / (1000 * 1000));
-                counter.addToEventDrainSuccessCount(Long.valueOf(messageList.size()));
-            }
+            if (processedEvents == 0) {  
+                counter.incrementBatchEmptyCount();  
+                result = Status.BACKOFF;  
+            } else {  
+                if (processedEvents < batchSize) {  
+                    counter.incrementBatchUnderflowCount();  
+                } else {  
+                    counter.incrementBatchCompleteCount();  
+                }  
 
+            // publish batch and commit.
+            counter.addToEventDrainAttemptCount(processedEvents); 
+            long startTime = System.nanoTime();  
+            producer.send(messageList);
+            long endTime = System.nanoTime();
+            counter.addToKafkaEventSendTimer((endTime - startTime) / (1000 * 1000));
+            counter.addToEventDrainSuccessCount(Long.valueOf(messageList.size()));
+            
+        }
             transaction.commit();
 
         } catch (Exception ex) {
