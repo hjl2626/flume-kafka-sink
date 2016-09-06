@@ -18,14 +18,15 @@ public class OldProducerKafkaSinkConstants {
     public static final String BROKER_LIST_FLUME_KEY = "brokerList";
     public static final String REQUIRED_ACKS_FLUME_KEY = "requiredAcks";
     public static final String PREPROCESSOR = "preprocessor";
-
+    public static final String TYPE_KEY = "others";
 
     public static final int DEFAULT_BATCH_SIZE = 100;
-    public static final String DEFAULT_TOPIC = "default-flume-topic";
     public static final String DEFAULT_MESSAGE_SERIALIZER =
             "kafka.serializer.StringEncoder";
     public static final String DEFAULT_KEY_SERIALIZER =
             "kafka.serializer.StringEncoder";
     public static final String DEFAULT_REQUIRED_ACKS = "0";
+    public static final String DEFAULT_TYPE = "default";
+    public static final String DEFAULT_TOPIC = "flume-default";
 
 }

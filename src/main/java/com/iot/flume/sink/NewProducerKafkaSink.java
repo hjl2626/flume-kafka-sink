@@ -17,6 +17,7 @@ import java.util.Properties;
 /**
  * Created by hjl on 2016/8/26.
  */
+@Deprecated
 public class NewProducerKafkaSink extends AbstractSink implements Configurable {
 
 
@@ -44,7 +45,7 @@ public class NewProducerKafkaSink extends AbstractSink implements Configurable {
                 Map<String, String> headers = event.getHeaders();
                 String eventTopic;
                 String eventBody;
-                int partition;
+                Integer partition;
                 String eventKey;
                 partition = Integer.valueOf(headers.get(PARTITION_HDR));
                 // if the metadata extractor is set, extract the topic and the key.
@@ -59,7 +60,9 @@ public class NewProducerKafkaSink extends AbstractSink implements Configurable {
                     }
                     eventBody = new String(event.getBody(), "UTF-8");
                     eventKey = headers.get(KEY_HDR);
-
+                    if(eventKey == null){
+                        eventKey = eventBody;
+                    }
                 }
 
                 // log the event for debugging
@@ -67,13 +70,17 @@ public class NewProducerKafkaSink extends AbstractSink implements Configurable {
                     logger.debug("{Event} " + eventBody);
                 }
                 // create a message
-                ProducerRecord<String, String> data = new ProducerRecord<String, String>(eventTopic, partition, eventKey, eventBody);
+                ProducerRecord<String, String> data;
+                if(partition == null){
+                    data = new ProducerRecord<String, String>(eventTopic, eventKey, eventBody);
+                }else{
+                    data = new ProducerRecord<String, String>(eventTopic,partition, eventKey, eventBody);
+                }
                 // publish
                 producer.send(data);
             } else {
                 // No event found, request back-off semantics from the sink runner
                 result = Status.BACKOFF;
-                break;
             }
             // publishing is successful. Commit.
             transaction.commit();

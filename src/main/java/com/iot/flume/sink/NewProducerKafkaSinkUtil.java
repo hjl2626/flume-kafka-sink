@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Properties;
 
+@Deprecated
 public class NewProducerKafkaSinkUtil {
 
   private static final Logger log =
